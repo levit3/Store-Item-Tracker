@@ -2,7 +2,7 @@ from models.__init__ import conn, cursor
 from store import Store
 
 class Store:
-    def __init__(self, name, description, store_id):
+    def __init__(self, name, description, store_id, id = None):
         self.name = name
         self.description =description
         self.store_id = store_id
@@ -42,7 +42,6 @@ class Store:
             FROM stores
             WHERE id = ?
         """
-        
         id_ = cursor.execute(sql, (value,)).fetchone()
         
         if not id_:
