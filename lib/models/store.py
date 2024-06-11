@@ -4,6 +4,9 @@ class Store:
         self.name = name
         self.location = location
         
+    def __repr__(self):
+        return f"<ID: {self.id}, Store: {self.name}, Location: {self.location}>"
+        
     @property
     def name(self):
         return self._name
@@ -27,9 +30,6 @@ class Store:
         elif not value:
             raise Exception("Location must not be empty")
         self._location = value
-        
-    def __repr__(self):
-        return f"<ID: {self.id}, Store: {self.name}, Location: {self.location}>"
     
     @classmethod
     def create_table():
@@ -50,3 +50,20 @@ class Store:
         """
         cursor.execute(sql)
         conn.commit()
+        
+    def save(self):
+        sql = """
+            INSERT INTO stores(name, location)
+            VALUES (?, ?)
+        """
+        
+        cursor.execute(sql, (self.name, self.location))
+        conn.commit()
+        
+        self.id = cursor.lastrowid
+        
+    @classmethod
+    def create(cls, name, location):
+        department = cls(name, location)
+        department.save()
+        return department
