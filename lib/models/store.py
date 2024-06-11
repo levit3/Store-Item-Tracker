@@ -1,3 +1,4 @@
+from models.__init__ import conn, cursor
 class Store:
     def __init__(self, name, location, id = None):
         self.name = name
@@ -30,4 +31,22 @@ class Store:
     def __repr__(self):
         return f"<ID: {self.id}, Store: {self.name}, Location: {self.location}>"
     
-    
+    @classmethod
+    def create_table():
+        sql = """
+            CREATE TABLE IF NOT EXISTS stores(
+                id PRIMARY KEY AUTOINCREMENT
+                name TEXT
+                location TEXT
+            );
+        """
+        cursor.execute(sql)
+        conn.commit()
+        
+    @classmethod
+    def drop_table():
+        sql = """
+            DROP TABLE IF EXISTS stores
+        """
+        cursor.execute(sql)
+        conn.commit()
