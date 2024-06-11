@@ -1,4 +1,4 @@
-from models.__init__ import conn, cursor
+from .__init__ import conn, cursor
 class Store:
     all = {}
     
@@ -34,19 +34,19 @@ class Store:
         self._location = value
     
     @classmethod
-    def create_table():
+    def create_table(self):
         sql = """
-            CREATE TABLE IF NOT EXISTS stores(
-                id PRIMARY KEY AUTOINCREMENT
-                name TEXT
+            CREATE TABLE IF NOT EXISTS stores (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT,
                 location TEXT
-            );
+            )
         """
         cursor.execute(sql)
         conn.commit()
         
     @classmethod
-    def drop_table():
+    def drop_table(self):
         sql = """
             DROP TABLE IF EXISTS stores
         """
@@ -55,7 +55,7 @@ class Store:
         
     def save(self):
         sql = """
-            INSERT INTO stores(name, location)
+            INSERT INTO stores (name, location)
             VALUES (?, ?)
         """
         
