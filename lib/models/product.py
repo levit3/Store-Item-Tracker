@@ -68,7 +68,44 @@ class Product:
         else:
             self._store_id = value
         
-    
+    @classmethod
+    def create_table(cls):
+        sql = """
+            CREATE TABLE IT NOT EXISTS products (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT,
+                product_type TEXT,
+                department_id FOREIGN KEY,
+                store_id FOREIGN KEY,
+                FOREIGN KEY (department_id) REFERENCES departments(id),
+                FOREIGN KEY (store_id) REFERENCES stores(id)
+            )
+        """
+        cursor.execute(sql)
+        conn.commit()
+        
+    @classmethod
+    def drop_table(cls):
+        sql = """
+            DROP TABLE IF EXISTS products
+        """
+        cursor.execute(sql)
+        conn.commit()
+        
+    def save(self):
+        sql = """
+            INSERT INTO products(name, product_type, department_id, store_id)
+            VALUES (?, ?, ?, ?)
+        """
+        cursor.execute(sql, (self.name, self.product_type, self.department_id, self.store_id))
+        conn.commit()
+        self.id = cursor.lastrowid
+        
+    @classmethod
+    def create(cls, name, product_type, department_id, store_id):
+        product = cls(name, product_type, department_id, store_id)
+        product.save()
+        return product
     
             
             
