@@ -1,6 +1,8 @@
 from models.__init__ import conn, cursor
 
 class Product:
+    all = {}
+    
     def __init__(self, name, product_type, department_id, store_id, id = None):
         self.name = name
         self.product_type = product_type
@@ -100,6 +102,7 @@ class Product:
         cursor.execute(sql, (self.name, self.product_type, self.department_id, self.store_id))
         conn.commit()
         self.id = cursor.lastrowid
+        type(self).all[self.id] = self
         
     @classmethod
     def create(cls, name, product_type, department_id, store_id):
@@ -107,6 +110,58 @@ class Product:
         product.save()
         return product
     
-            
-            
+    @classmethod
+    def instance_from_db(cls, row):
+        product = cls.all.get(row[0])
+        if product:
+            product.name = row[1]
+            product.product_type = row[2]
+            product.department_id = row[3]
+            product.store_id = row[4]
+        else:
+            product = cls(row[1], row[2], row[3], row[4])
+            product.id = row[0]
+            cls.all[product.id] = product
+        return product
+    
+    @classmethod
+    def find_by_id(cls, id_):
+        sql = """
+            SELECT *
+            FROM products
+            WHERE id = ?
+        """
+        product = cursor.execute(sql, (id_,)).fetchone()
+        return cls.instance_from_db(product) if product else None
+    
+    @classmethod
+    def find_by_name(cls, name):
+        sql = """
+            SELECT *
+            FROM products
+            WHERE name = ?
+        """
+        product = cursor.execute(sql, (name,)).fetchone()
+        return cls.instance_from_db(product) if product else None
+    
+    @classmethod
+    def find_by_type(cls, type_):
+        sql = """
+            SELECT *
+            FROM products
+            WHERE product_type = ?
+        """
+        products = cursor.execute(sql, (type_, )).fetchall()
+        return [cls.instance_from_db(product) for product in products]
+    
+    @classmethod
+    def get_all(cls):
+        sql = """
+            SELECT *
+            FROM products
+        """
+        products = cursor.execute(sql).fetchall()
+        return [cls.instance_from_db(product) for product in products]
+        
+                
         
