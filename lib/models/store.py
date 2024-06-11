@@ -70,3 +70,70 @@ class Store:
         store = cls(name, location)
         store.save()
         return store
+    
+    def delete(self, id):
+        sql = """
+            DELETE FROM stores
+            WHERE id = ?
+        """
+        cursor.execute(sql, (id,))
+        conn.commit()
+        
+        del type(self).all[id]
+        self.id = None
+    
+    @classmethod
+    def instance_from_db(cls, row):
+        store = cls.all.get(row[0])
+        if store:
+            store.name = row[1]
+            store.location = row[2]
+        else:
+            store = cls(row[1], row[2])
+            store.id = row[0]
+            cls.all[store.id] = store
+        return store
+    
+    @classmethod
+    def find_by_id(cls, id_):
+        sql = """
+            SELECT *
+            FROM stores
+            WHERE id = ?
+        """
+        store = cursor.execute(sql, (id_,)).fetchone()
+        return cls.instance_from_db(store) if store else None
+    
+    @classmethod
+    def find_by_name(cls, name):
+        sql = """
+            SELECT *
+            FROM stores
+            WHERE name = ?
+        """
+        store = cursor.execute(sql, (name,)).fetchone()
+        return cls.instance_from_db(store) if store else None
+    
+    @classmethod
+    def find_in_location(cls, location):
+        sql = """
+            SELECT *
+            FROM stores
+            WHERE location = ?
+        """
+        stores = cursor.execute(sql, (location,)).fetchall()
+        return [cls.instance_from_db(store) for store in stores]
+    
+    
+    @classmethod
+    def get_all(cls):
+        sql = """
+            SELECT *
+            FROM stores
+        """
+        stores = cursor.execute(sql).fetchall()
+        return [cls.instance_from_db(store) for store in stores]
+        
+    
+        
+        
