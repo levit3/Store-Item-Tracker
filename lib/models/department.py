@@ -28,7 +28,7 @@ class Department:
         if not isinstance(value, str):
             raise TypeError('The description must be a string')
         elif not value:
-            raise Exception("THe description must not be empty")
+            raise Exception("The description must not be empty")
         self._description = value
         
     @property
@@ -48,4 +48,39 @@ class Department:
             raise ValueError("The store id must be in the stores table")
         else:
             self._store_id = value
+
+    @classmethod
+    def create_table(cls):
+        sql = """
+            CREATE TABLE IF NOT EXISTS departments (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT,
+                description TEXT, 
+                store_id FOREIGN KEY,
+                FOREIGN KEY (store_id) REFERENCES stores(id)
+            )
+        """
+        cursor.execute(sql)
+        conn.commit()
     
+    @classmethod
+    def drop_table(cls):
+        sql = """
+            DROP TABLE IF EXISTS departments
+        """
+        cursor.execute(sql)
+        conn.commit()
+        
+    def save(self):
+        sql = """
+            INSERT INTO departments(name, description, store_id)
+            VALUES (?, ?, ?)
+        """
+        cursor.execute(sql, (self.name, self.description, self.store_id))
+        conn.commit()
+        
+    @classmethod    
+    def create(cls, name, description, store_id):
+        department = cls(name, description, store_id)
+        department.save()
+        return department
