@@ -1,7 +1,7 @@
 from models.__init__ import conn, cursor
 from store import Store
 
-class Store:
+class Department:
     def __init__(self, name, description, store_id, id = None):
         self.name = name
         self.description =description
