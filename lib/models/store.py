@@ -1,5 +1,7 @@
 from models.__init__ import conn, cursor
 class Store:
+    all = {}
+    
     def __init__(self, name, location, id = None):
         self.name = name
         self.location = location
@@ -61,9 +63,10 @@ class Store:
         conn.commit()
         
         self.id = cursor.lastrowid
+        type(self).all[self.id] = self
         
     @classmethod
     def create(cls, name, location):
-        department = cls(name, location)
-        department.save()
-        return department
+        store = cls(name, location)
+        store.save()
+        return store
