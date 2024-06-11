@@ -34,7 +34,7 @@ class Store:
         self._location = value
     
     @classmethod
-    def create_table(self):
+    def create_table(cls):
         sql = """
             CREATE TABLE IF NOT EXISTS stores (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -46,7 +46,7 @@ class Store:
         conn.commit()
         
     @classmethod
-    def drop_table(self):
+    def drop_table(cls):
         sql = """
             DROP TABLE IF EXISTS stores
         """
