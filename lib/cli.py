@@ -16,6 +16,16 @@ from helpers import (
     find_department_by_name,
     view_all_departments,
     update_department,
+    new_product,
+    delete_product,
+    update_product,
+    find_product_by_id,
+    find_product_by_name,
+    view_all_products,
+    view_all_products_in_department_id,
+    view_all_products_in_department_name,
+    products_in_store_id,
+    products_in_store_name,
     quit
 )
 
@@ -60,6 +70,26 @@ def main():
             find_department_by_name()
         elif choice == "15":
             view_all_departments()
+        elif choice == "16":
+            new_product()
+        elif choice == "17":
+            delete_product()
+        elif choice == "18":
+            update_product()
+        elif choice == "19":
+            find_product_by_id()
+        elif choice == "20":
+            find_product_by_name()
+        elif choice == "21":
+            view_all_products()
+        elif choice == "22":
+            view_all_products_in_department_id()
+        elif choice == "23":
+            view_all_products_in_department_name()
+        elif choice == "24":
+            products_in_store_id()
+        elif choice == "25":
+            products_in_store_name()
         elif choice == "q".lower() or choice == "quit".lower():
             quit()
         else:
@@ -84,6 +114,17 @@ def choices():
     print(f"\t13. Find department by id")
     print(f"\t14. Find department(s) by name")
     print(f"\t15. View all departments")
+    print("\n Product Operations:")
+    print(f"\t16. Add new product")
+    print(f"\t17. Remove product")
+    print(f"\t18. Update product details")
+    print(f"\t19. Find product by id")
+    print(f"\t20. Find product(s) by name")
+    print(f"\t21. View all products")
+    print(f"\t22. View all products in a department (by ID)")
+    print(f"\t23. View all products in a department (by Name)")
+    print(f"\t24. View all products in a store (by ID)")
+    print(f"\t25. View all products in a store (by Name)")
     print(f"\nEnter 'q' or 'quit' to Quit")
     
 if __name__ == "__main__":

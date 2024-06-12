@@ -46,8 +46,10 @@ Department.create("Accessories", "Tech accessories such as chargers, cables, and
 Product.drop_table()
 Product.create_table()
 
-Product.create("Apple", "Fruit", 2)
-Product.create("Orange", "Fruit", 2)
+Product.create("Apple", "Fruit", 1)
+Product.create("Orange", "Fruit", 1)
+Product.create("Chicken", "Produce", 2)
+Product.create("Beef", "Produce", 2)
 Product.create("Milk", "Dairy", 3)
 Product.create("Cheese", "Dairy", 3)
 Product.create("Bread", "Bakery", 4)
@@ -72,6 +74,6 @@ Product.create("Cream", "Dairy", 14)
 Product.create("Croissant", "Bakery", 15)
 Product.create("Book: Fiction", "Books", 16)
 Product.create("Book: Non-Fiction", "Books", 16)
-Product.create("Vacuum Cleaner", "Home Goods", 17)
+Product.create("Vacuum Cleaner", "Home Goods", 19)
 
 

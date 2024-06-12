@@ -9,6 +9,9 @@ class Product:
         self.department_id = department_id
         # self.store_id = store_id
         
+    def __repr__(self):
+        return f"<ID: {self.id}, Name: {self.name}, Product Type: {self.product_type}, Department ID: {self.department_id}>"
+        
     @property
     def name(self):
         return self._name
@@ -20,7 +23,7 @@ class Product:
         elif not value:
             raise Exception("Product name must not be empty")
         else:
-            self._name = value
+            self._name = value.title()
             
     @property
     def product_type(self):
@@ -102,6 +105,15 @@ class Product:
         self.id = cursor.lastrowid
         type(self).all[self.id] = self
         
+    def update(self):
+        sql = """
+            UPDATE products
+            SET name =?, product_type =?, department_id =?
+            WHERE id =?
+        """
+        cursor.execute(sql, (self.name, self.product_type, self.department_id, self.id))
+        conn.commit()
+        
     @classmethod
     def create(cls, name, product_type, department_id):
         product = cls(name, product_type, department_id)
@@ -138,8 +150,8 @@ class Product:
             FROM products
             WHERE name = ?
         """
-        product = cursor.execute(sql, (name,)).fetchone()
-        return cls.instance_from_db(product) if product else None
+        products = cursor.execute(sql, (name,)).fetchall()
+        return [cls.instance_from_db(product) for product in products] if products else None
     
     @classmethod
     def find_by_type(cls, type_):
@@ -160,5 +172,25 @@ class Product:
         products = cursor.execute(sql).fetchall()
         return [cls.instance_from_db(product) for product in products]
         
-                
+    @classmethod
+    def get_all_in_department_id(cls, department_id):
+        sql = """
+            SELECT *
+            FROM products
+            WHERE department_id = ?
+        """
+        products = cursor.execute(sql, (department_id,)).fetchall()
+        return [cls.instance_from_db(product) for product in products] if products else None
+    
+    @classmethod
+    def get_all_in_department_name(cls, name):
+        sql = """
+            SELECT *
+            FROM products
+            INNER JOIN departments
+            ON products.department_id = departments.id
+            WHERE departments.name = ?
+        """
+        products = cursor.execute(sql, (name, )).fetchall()
+        return [cls.instance_from_db(product) for product in products] if products else None
         
