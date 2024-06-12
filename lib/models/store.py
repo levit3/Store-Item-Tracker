@@ -19,7 +19,7 @@ class Store:
             raise Exception('Name must be a string')
         elif not 3 <= len(value) <= 30:
             raise Exception("Name must be between 3 and 30 characters")
-        self._name = value
+        self._name = value.title()
     
     @property
     def location(self):
