@@ -2,10 +2,14 @@ from .__init__ import conn, cursor
 from .store import Store
 
 class Department:
+    all = {}
     def __init__(self, name, description, store_id, id = None):
         self.name = name
         self.description =description
         self.store_id = store_id
+        
+    def __repr__(self):
+        return f"<ID: {self.id}, Name: {self.name}, Description: {self.description}, Store ID: {self.store_id}>"
         
     @property
     def name(self):
@@ -17,7 +21,7 @@ class Department:
             raise TypeError('Name must be a string')
         elif not 2 <= len(value) <= 15:
             raise Exception("Name must be between 2 and 15 characters")
-        self._name = value
+        self._name = value.title()
         
     @property
     def description(self):
@@ -78,6 +82,7 @@ class Department:
         """
         cursor.execute(sql, (self.name, self.description, self.store_id))
         conn.commit()
+        self.id = cursor.lastrowid
         type(self).all[self.id] = self
     
     def delete(self, id):
@@ -90,6 +95,15 @@ class Department:
         
         del type(self).all[id]
         self.id = None
+        
+    def update(self):
+        sql = """"
+            UPDATE departments
+            SET name =?, description =?, store_id =?,
+            WHERE id =?
+        """
+        cursor.execute(sql, (self.name, self.description, self.store_id, self.id))
+        conn.commit()
         
     @classmethod    
     def create(cls, name, description, store_id):
@@ -128,8 +142,8 @@ class Department:
             FROM departments
             WHERE name = ?
         """
-        department = cursor.execute(sql, (name,)).fetchone()
-        return cls.instance_from_db(department) if department else None
+        departments = cursor.execute(sql, (name,)).fetchall()
+        return [cls.instance_from_db(department) for department in departments] if departments else None
     
     @classmethod
     def get_all(cls):
@@ -140,3 +154,13 @@ class Department:
         departments = cursor.execute(sql).fetchall()
         return [cls.instance_from_db(department) for department in departments]
         
+    @classmethod
+    def find_by_store_id(cls, store_id):
+        sql = """
+            SELECT *
+            FROM departments
+            WHERE store_id = ?
+            """
+        departments = cursor.execute(sql, (store_id,)).fetchall()
+        return [cls.instance_from_db(department) for department in departments] if departments else None
+    
