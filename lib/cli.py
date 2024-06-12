@@ -8,7 +8,8 @@ from helpers import (
     find_store_by_name,
     find_store_by_location,
     view_all_stores,
-    view_all_store_departments,
+    view_all_store_departments_id,
+    view_all_store_departments_name,
     new_department,
     delete_department,
     find_department_by_id,
@@ -44,18 +45,20 @@ def main():
         elif choice == "7":
              view_all_stores()
         elif choice == "8":
-            view_all_store_departments()
+            view_all_store_departments_id()
         elif choice == "9":
-            new_department()
+            view_all_store_departments_name()
         elif choice == "10":
-            delete_department()
+            new_department()
         elif choice == "11":
-            update_department()
+            delete_department()
         elif choice == "12":
-            find_department_by_id()
+            update_department()
         elif choice == "13":
-            find_department_by_name()
+            find_department_by_id()
         elif choice == "14":
+            find_department_by_name()
+        elif choice == "15":
             view_all_departments()
         elif choice == "q".lower() or choice == "quit".lower():
             quit()
@@ -72,14 +75,15 @@ def choices():
     print(f"\t5. Find store by name")
     print(f"\t6. Find stores in a location")
     print(f"\t7. View all stores")
-    print(f"\t8. View all departments in a store")
+    print(f"\t8. View all departments in a store (by ID)")
+    print(f"\t9. View all departments in a store (by Name)")
     print("\nDepartment Operations:")
-    print(f"\t9. Add new department")
-    print(f"\t10. Remove department")
-    print(f"\t11. Update department details")
-    print(f"\t12. Find department by id")
-    print(f"\t13. Find department(s) by name")
-    print(f"\t14. View all departments")
+    print(f"\t10. Add new department")
+    print(f"\t11. Remove department")
+    print(f"\t12. Update department details")
+    print(f"\t13. Find department by id")
+    print(f"\t14. Find department(s) by name")
+    print(f"\t15. View all departments")
     print(f"\nEnter 'q' or 'quit' to Quit")
     
 if __name__ == "__main__":

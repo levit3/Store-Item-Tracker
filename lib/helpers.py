@@ -68,7 +68,7 @@ def view_all_stores():
     for store in stores:
         print(store)
 
-def view_all_store_departments():
+def view_all_store_departments_id():
     id_ = int(input("Enter the store id: "))
     if departments := Department.find_by_store_id(id_):
         for department in departments:
@@ -76,6 +76,14 @@ def view_all_store_departments():
     else:
         print(f"\t>>>> No departments found in store with id {id_} <<<<")
     
+def view_all_store_departments_name():
+    name = input("Enter the store name: ")
+    departments = Department.find_by_store_name(name.title())
+    if departments:
+        for department in departments:
+            print(department)
+    else:
+        print(f"No department with the name {name} was found")
     
     
 def new_department():
@@ -139,6 +147,14 @@ def update_department():
     else:
         print(f"\t>>>> Input cannot be blank <<<<")
         
+def store():
+    name = input("name")
+    dpt = Department.find_by_store_name(name)
+    if dpt:
+        for dp in dpt:
+            print(dp)
+    else:
+        print("non")
 
 
 def quit():

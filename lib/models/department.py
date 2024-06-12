@@ -163,4 +163,16 @@ class Department:
             """
         departments = cursor.execute(sql, (store_id,)).fetchall()
         return [cls.instance_from_db(department) for department in departments] if departments else None
+
+    @classmethod
+    def find_by_store_name(cls, name):
+        sql = """
+            SELECT *
+            FROM departments
+            INNER JOIN stores
+            ON departments.store_id = stores.id
+            WHERE stores.name = ?
+        """
+        departments = cursor.execute(sql, (name,)).fetchall()
+        return [cls.instance_from_db(department) for department in departments] if departments else None
     
