@@ -3,14 +3,15 @@ from .__init__ import conn, cursor
 class Product:
     all = {}
     
-    def __init__(self, name, product_type, department_id, id = None):
+    def __init__(self, name, product_type, quantity, department_id, id = None):
         self.name = name
         self.product_type = product_type
         self.department_id = department_id
+        self.quantity = quantity
         # self.store_id = store_id
         
     def __repr__(self):
-        return f"<ID: {self.id}, Name: {self.name}, Product Type: {self.product_type}, Department ID: {self.department_id}>"
+        return f"<ID: {self.id}, Name: {self.name}, Product Type: {self.product_type}, Quantity: {self.quantity}, Department ID: {self.department_id}>"
         
     @property
     def name(self):
@@ -24,6 +25,19 @@ class Product:
             raise Exception("Product name must not be empty")
         else:
             self._name = value.title()
+    
+    @property
+    def quantity(self):
+            return self._quantity
+        
+    @quantity.setter
+    def quantity(self, value):
+        if not isinstance(value, int):
+            raise ValueError("Product quantity must be an integer")
+        elif value < 0:
+            raise ValueError("Product quantity must be a positive integer")
+        else:
+            self._quantity = value
             
     @property
     def product_type(self):
@@ -37,6 +51,7 @@ class Product:
             raise Exception("Product type name must not be empty")
         else:
             self._product_type = value
+            
     @property
     def department_id(self):
         return self._department_id
@@ -80,6 +95,7 @@ class Product:
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 name TEXT,
                 product_type TEXT,
+                quantity INTEGER,
                 department_id,
                 FOREIGN KEY (department_id) REFERENCES departments(id)
             )
@@ -97,10 +113,10 @@ class Product:
         
     def save(self):
         sql = """
-            INSERT INTO products(name, product_type, department_id)
-            VALUES (?, ?, ?)
+            INSERT INTO products(name, product_type, quantity, department_id)
+            VALUES (?, ?, ?, ?)
         """
-        cursor.execute(sql, (self.name, self.product_type, self.department_id))
+        cursor.execute(sql, (self.name, self.product_type, self.quantity, self.department_id))
         conn.commit()
         self.id = cursor.lastrowid
         type(self).all[self.id] = self
@@ -108,15 +124,15 @@ class Product:
     def update(self):
         sql = """
             UPDATE products
-            SET name =?, product_type =?, department_id =?
+            SET name =?, product_type =?, quantity = ?, department_id =?
             WHERE id =?
         """
-        cursor.execute(sql, (self.name, self.product_type, self.department_id, self.id))
+        cursor.execute(sql, (self.name, self.product_type, self.quantity, self.department_id, self.id))
         conn.commit()
         
     @classmethod
-    def create(cls, name, product_type, department_id):
-        product = cls(name, product_type, department_id)
+    def create(cls, name, product_type, quantity, department_id):
+        product = cls(name, product_type, quantity, department_id)
         product.save()
         return product
     
@@ -126,9 +142,10 @@ class Product:
         if product:
             product.name = row[1]
             product.product_type = row[2]
-            product.department_id = row[3]
+            product.quantity = row[3]
+            product.department_id = row[4]
         else:
-            product = cls(row[1], row[2], row[3])
+            product = cls(row[1], row[2], row[3], row[4])
             product.id = row[0]
             cls.all[product.id] = product
         return product
@@ -161,7 +178,7 @@ class Product:
             WHERE product_type = ?
         """
         products = cursor.execute(sql, (type_, )).fetchall()
-        return [cls.instance_from_db(product) for product in products]
+        return [cls.instance_from_db(product) for product in products] if products else []
     
     @classmethod
     def get_all(cls):
@@ -170,7 +187,7 @@ class Product:
             FROM products
         """
         products = cursor.execute(sql).fetchall()
-        return [cls.instance_from_db(product) for product in products]
+        return [cls.instance_from_db(product) for product in products] if products else []
         
     @classmethod
     def get_all_in_department_id(cls, department_id):
@@ -180,7 +197,7 @@ class Product:
             WHERE department_id = ?
         """
         products = cursor.execute(sql, (department_id,)).fetchall()
-        return [cls.instance_from_db(product) for product in products] if products else None
+        return [cls.instance_from_db(product) for product in products] if products else []
     
     @classmethod
     def get_all_in_department_name(cls, name):
@@ -192,5 +209,5 @@ class Product:
             WHERE departments.name = ?
         """
         products = cursor.execute(sql, (name, )).fetchall()
-        return [cls.instance_from_db(product) for product in products] if products else None
+        return [cls.instance_from_db(product) for product in products] if products else []
         

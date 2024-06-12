@@ -26,6 +26,8 @@ from helpers import (
     view_all_products_in_department_name,
     products_in_store_id,
     products_in_store_name,
+    show_almost_out,
+    update_quantity,
     quit
 )
 
@@ -38,8 +40,9 @@ def main():
     print(f"\t **Welcome to the store manager!**")
     print(f"\t{st}")
     while True:
+        show_almost_out()
         choices()
-        choice = input(f"\n>>>  ")
+        choice = input(f"\n>>> ").lower()
         if choice == "1" or choice == "Add a new store".lower():
             add_new_store()
         elif choice == "2":
@@ -47,7 +50,7 @@ def main():
         elif choice == "3":
             update_store()
         elif choice == "4":
-            find_store_by_id
+            find_store_by_id()
         elif choice == "5":
             find_store_by_name()
         elif choice == "6":
@@ -90,6 +93,8 @@ def main():
             products_in_store_id()
         elif choice == "25":
             products_in_store_name()
+        elif choice == "26":
+            update_quantity()
         elif choice == "q".lower() or choice == "quit".lower():
             quit()
         else:
@@ -125,6 +130,7 @@ def choices():
     print(f"\t23. View all products in a department (by Name)")
     print(f"\t24. View all products in a store (by ID)")
     print(f"\t25. View all products in a store (by Name)")
+    print(f"\t26. Update product quantity")
     print(f"\nEnter 'q' or 'quit' to Quit")
     
 if __name__ == "__main__":
