@@ -78,9 +78,65 @@ class Department:
         """
         cursor.execute(sql, (self.name, self.description, self.store_id))
         conn.commit()
+        type(self).all[self.id] = self
+    
+    def delete(self, id):
+        sql = """
+            DELETE FROM departments
+            WHERE id = ?
+        """
+        cursor.execute(sql, (id,))
+        conn.commit()
+        
+        del type(self).all[id]
+        self.id = None
         
     @classmethod    
     def create(cls, name, description, store_id):
         department = cls(name, description, store_id)
         department.save()
         return department
+    
+    @classmethod
+    def instance_from_db(cls, row):
+        department = cls.all.get(row[0])
+        if department:
+            department.name = row[1]
+            department.description = row[2]
+            department.store_id = row[3]
+        else:
+            department = cls(row[1], row[2], row[3])
+            department.id = row[0]
+            cls.all[department.id] = department
+        
+        return department
+    
+    @classmethod
+    def find_by_id(cls, id_):
+        sql = """
+            SELECT *
+            FROM departments
+            WHERE id = ?
+        """
+        department = cursor.execute(sql, (id_,)).fetchone()
+        return cls.instance_from_db(department) if department else None
+    
+    @classmethod
+    def find_by_name(cls, name):
+        sql = """
+            SELECT *
+            FROM departments
+            WHERE name = ?
+        """
+        department = cursor.execute(sql, (name,)).fetchone()
+        return cls.instance_from_db(department) if department else None
+    
+    @classmethod
+    def get_all(cls):
+        sql = """
+            SELECT *
+            FROM departments
+        """
+        departments = cursor.execute(sql).fetchall()
+        return [cls.instance_from_db(department) for department in departments]
+        
