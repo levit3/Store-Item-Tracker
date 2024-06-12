@@ -16,9 +16,9 @@ class Store:
     @name.setter
     def name(self, value):
         if not isinstance(value, str):
-            raise TypeError('Name must be a string')
-        elif not 3 <= len(value) <= 15:
-            raise Exception("Name must be between 3 and 15 characters")
+            raise Exception('Name must be a string')
+        elif not 3 <= len(value) <= 30:
+            raise Exception("Name must be between 3 and 30 characters")
         self._name = value
     
     @property
@@ -28,10 +28,10 @@ class Store:
     @location.setter
     def location(self, value):
         if not isinstance(value, str):
-            raise TypeError('Location must be a string')
+            raise Exception('Location must be a string')
         elif not value:
             raise Exception("Location must not be empty")
-        self._location = value
+        self._location = value.title()
     
     @classmethod
     def create_table(cls):
@@ -71,16 +71,25 @@ class Store:
         store.save()
         return store
     
-    def delete(self, id):
+    def delete(self):
         sql = """
             DELETE FROM stores
             WHERE id = ?
         """
-        cursor.execute(sql, (id,))
+        cursor.execute(sql, (self.id, ))
         conn.commit()
         
-        del type(self).all[id]
+        del type(self).all[self.id]
         self.id = None
+    
+    def update(self):
+        sql = """
+            UPDATE stores
+            SET name = ?, location = ?
+            WHERE id = ?
+        """
+        cursor.execute(sql, (self.name, self.location, self.id))
+        conn.commit()
     
     @classmethod
     def instance_from_db(cls, row):

@@ -1,5 +1,5 @@
-from models.__init__ import conn, cursor
-from store import Store
+from .__init__ import conn, cursor
+from .store import Store
 
 class Department:
     def __init__(self, name, description, store_id, id = None):
@@ -56,7 +56,7 @@ class Department:
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 name TEXT,
                 description TEXT, 
-                store_id FOREIGN KEY,
+                store_id,
                 FOREIGN KEY (store_id) REFERENCES stores(id)
             )
         """

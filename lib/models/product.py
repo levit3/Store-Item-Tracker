@@ -1,13 +1,13 @@
-from models.__init__ import conn, cursor
+from .__init__ import conn, cursor
 
 class Product:
     all = {}
     
-    def __init__(self, name, product_type, department_id, store_id, id = None):
+    def __init__(self, name, product_type, department_id, id = None):
         self.name = name
         self.product_type = product_type
         self.department_id = department_id
-        self.store_id = store_id
+        # self.store_id = store_id
         
     @property
     def name(self):
@@ -52,35 +52,33 @@ class Product:
         else:
             self._department_id = value
             
-    @property
-    def store_id(self):
-        return self._store_id
+    # @property
+    # def store_id(self):
+    #     return self._store_id
     
-    @store_id.setter
-    def store_id(self, value):
-        sql = """
-            SELECT id
-            FROM stores
-            WHERE id = ?
-        """
-        id_ = cursor.execute(sql, (value, )).fetchone()
+    # @store_id.setter
+    # def store_id(self, value):
+    #     sql = """
+    #         SELECT id
+    #         FROM stores
+    #         WHERE id = ?
+    #     """
+    #     id_ = cursor.execute(sql, (value, )).fetchone()
         
-        if not id_:
-            raise Exception("The store id must be in the stores table")
-        else:
-            self._store_id = value
+    #     if not id_:
+    #         raise Exception("The store id must be in the stores table")
+    #     else:
+    #         self._store_id = value
         
     @classmethod
     def create_table(cls):
         sql = """
-            CREATE TABLE IT NOT EXISTS products (
+            CREATE TABLE IF NOT EXISTS products (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 name TEXT,
                 product_type TEXT,
-                department_id FOREIGN KEY,
-                store_id FOREIGN KEY,
-                FOREIGN KEY (department_id) REFERENCES departments(id),
-                FOREIGN KEY (store_id) REFERENCES stores(id)
+                department_id,
+                FOREIGN KEY (department_id) REFERENCES departments(id)
             )
         """
         cursor.execute(sql)
@@ -96,17 +94,17 @@ class Product:
         
     def save(self):
         sql = """
-            INSERT INTO products(name, product_type, department_id, store_id)
-            VALUES (?, ?, ?, ?)
+            INSERT INTO products(name, product_type, department_id)
+            VALUES (?, ?, ?)
         """
-        cursor.execute(sql, (self.name, self.product_type, self.department_id, self.store_id))
+        cursor.execute(sql, (self.name, self.product_type, self.department_id))
         conn.commit()
         self.id = cursor.lastrowid
         type(self).all[self.id] = self
         
     @classmethod
-    def create(cls, name, product_type, department_id, store_id):
-        product = cls(name, product_type, department_id, store_id)
+    def create(cls, name, product_type, department_id):
+        product = cls(name, product_type, department_id)
         product.save()
         return product
     
@@ -117,9 +115,8 @@ class Product:
             product.name = row[1]
             product.product_type = row[2]
             product.department_id = row[3]
-            product.store_id = row[4]
         else:
-            product = cls(row[1], row[2], row[3], row[4])
+            product = cls(row[1], row[2], row[3])
             product.id = row[0]
             cls.all[product.id] = product
         return product
