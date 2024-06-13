@@ -191,7 +191,7 @@ def find_department_by_name():
             for department in departments:
                 print(f"{department}")
         else:
-            console.print(f"\t>>>> No department with id {id_} was found <<<<", style="dim blue bold")
+            console.print(f"\t>>>> No department with name {name} was found <<<<", style="dim blue bold")
     else:
         console.print(f"\t>>>> Input must be a string <<<<", style="bold dim magenta")
 
@@ -416,10 +416,10 @@ def show_almost_out():
     for name, data in ending_products.items():
             if data[2] > 0:
                 print(data[0])
-                print(f"***{data[1]} is almost out of stock. Only[bold red] {data[2]}[/bold red] remaining!***\n")
+                print(f"***[bold dim magenta]{data[1]}[/] is almost out of stock. Only[bold red] {data[2]}[/bold red] remaining!***\n")
             else:
                 print(data[0])
-                print(f"***{data[1]} is out of stock!!***\n")
+                print(f"***[bold dim red]{data[1]}[/] is out of stock!!***\n")
     print("[bold red]------------------------------------------------------------[/bold red]\n")
             
 def update_quantity():
@@ -433,7 +433,7 @@ def update_quantity():
                 if store:
                     for product in products:
                         if store.id == product.store_id:
-                            print(f"Current stock for {product.name} is {product.quantity}\n")
+                            console.print(f"Current stock for [green bold]{product.name}[/green bold] is [magenta bold]{product.quantity}[/]\n")
                             if product.quantity > 0:
                                 question = input("Enter 'u' to to update quantity for the day or 's' to stock up: ")
                             else:
@@ -446,11 +446,11 @@ def update_quantity():
                                         if product.quantity > int(quantity):
                                             product.quantity -= int(quantity)
                                             product.update()
-                                            print(f"{product.name} stock has been updated from {prev} to {product.quantity}\n")
+                                            console.print(f"{product.name} stock has been updated from [magenta bold] {prev}[/] to [green bold]{product.quantity}[/]\n")
                                         else:
-                                            print(f"The quantity you have entered ({quantity}) is more then the stock ({product.quantity})")
+                                            console.print(f"The quantity you have entered [magenta bold] ({quantity})[/] is more then the stock [green bold]({product.quantity})[/]")
                                     else:
-                                        print(f"\n{quantity} must be a valid integer\n")
+                                        console.print(f"\n{quantity} must be a valid integer\n", style="bold magenta")
                                 else:
                                     print(f"\n{product.name} is out of stock\n")
                             elif question.lower() == "s":
@@ -461,17 +461,17 @@ def update_quantity():
                                     product.update()
                                     print(f"\n{product.name} stock has been updated from {prev} to {product.quantity}\n")
                                 else:
-                                    print(f"\n{quantity} must be a valid integer\n")
+                                    console.print(f"\n{quantity} must be a valid integer\n", style="bold dim magenta")
                             else:
-                                print(f"\t>>>> Invalid input <<<<")
+                                console.print("\t>>>> Invalid input <<<<", style="bold dim magenta")
                         else:
-                            print(f"\t>>>> Product {product.name} does not exist in the stock of {store.name} <<<<")
+                            console.print(f"\t>>>> Product {product.name} does not exist in the stock of {store.name} <<<<", style = "dim blue bold")
                 else:
-                    print(f"\t>>>> Store with name {store_name} does not exist <<<<")
+                    console.print(f"\t>>>> Store with name {store_name} does not exist <<<<", style = "dim blue bold")
             else:
                 console.print(f"\t>>>> Input must be a string <<<<", style="bold dim magenta")
         else:
-            print(f"\t>>>> Product with name {product_name} does not exist <<<<")
+            console.print(f"\t>>>> Product with name {product_name} does not exist <<<<", style="dim blue bold")
     else:
         console.print(f"\t>>>> Input must be a string <<<<", style="bold dim magenta")
 
