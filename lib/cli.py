@@ -43,10 +43,10 @@ from helpers import (
 )
 
 def main():
-    for i in track(range(3), description = "Booting up..."):
-        time.sleep(1)
-    print(figlet_format("Welcome to the ", font="small", justify="center"), end = "")
-    print(figlet_format("Store Manager ", font="standard",  justify="center"))
+    console = Console()
+    for i in track(range(4), description = "Booting up..."):
+        time.sleep(0.8)
+    print(figlet_format("Retail Maven", font="standard",  justify="center"))
     show_almost_out()
     while True:
         choices()
@@ -110,9 +110,9 @@ def main():
             if pass_ == "admin":
                 admin_panel()
             else:
-                print("Invalid password")
+                console.print("Invalid Password!", style="bold dim magenta")
         else:
-            print("Invalid choice")
+            console.print("Invalid Input!", style="bold dim magenta")
         
         
 def choices():
@@ -179,10 +179,10 @@ def admin_choices():
     console.print("Store Operations", style = "bold blue on white")
     print("\t1. Delete Store Table")
     print("\t2. Add Store Table")
-    print("Department Operations", style = "bold blue on white")
+    console.print("Department Operations", style = "bold blue on white")
     print("\t3. Delete Department Table")
     print("\t4. Add Department Table")
-    print("Product Operations", style = "bold blue on white")
+    console.print("Product Operations", style = "bold blue on white")
     print("\t5. Delete Product Table")
     print("\t6. Add Product Table")
     print(f"\nEnter 'q' or 'quit' to go back")

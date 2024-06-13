@@ -6,7 +6,7 @@ from pyfiglet import figlet_format
 from rich import print
 from rich.console import Console
 from rich.progress import track
-
+console = Console()
 ### STORE OPERATIONS ###
 def add_new_store():
     name = input("Enter the name of the new store: ")
@@ -19,9 +19,9 @@ def add_new_store():
             except Exception as exc:
                 print(f"\t>>>> Error: ", exc, "<<<<", "\n")
         else:
-            print(f"\t>>>> Input cannot be blank <<<<")
+            console.print("\t>>>> Input cannot be blank <<<<", style="bold magenta dim")
     else:
-        print(f"\t>>>> Input cannot be blank <<<<")
+        console.print("\t>>>> Input cannot be blank <<<<", style="bold magenta dim")
 
 def remove_store():
     id_ = input("Enter the id of the store: ")
@@ -33,13 +33,13 @@ def remove_store():
                 print(f"{store} has been removed")
                 store.delete()
             elif choice.lower() == "n":
-                print(f"Operation cancelled")
+                console.print("Operation cancelled", style="bold dim magenta")
             else:
-                print("\t>>>> Invalid choice <<<<")
+                console.print("\t>>>> Invalid choice <<<<", style="bold dim magenta")
         else:
-            print(f"\t>>>> No store with id {id_} was found <<<<")
+           console.print(f"\t>>>> No store with id {id_} was found <<<<", style="bold dim blue")
     else:
-        print(f"\t>>>> Input must be a valid integer <<<<")
+        console.print("\t>>>> Input must be a valid integer <<<<", style="dim bold magenta")
 
 def update_store():
     id_ = input("Enter the store id: ")
@@ -56,16 +56,17 @@ def update_store():
                         store.update()
                         print(f"{store} has been updated")
                     else:
-                        print(f"\t>>>> Input must be a string <<<<")
+                        console.print(f"\t>>>> Input must be a string <<<<", style="bold dim magenta")
                 else:
-                    print(f"\t>>>> Input must be a string <<<<")
+                    console.print(f"\t>>>> Input must be a string <<<<", style="bold dim magenta")
                 
             except Exception as exc:
                 print(f"\t>>>> Error: ", exc, "<<<<", "\n")
         else:
-            print(f"\t>>>> No store with id {id_} was found <<<<")
+           console.print(f"\t>>>> No store with id {id_} was found <<<<", style="bold dim blue")
+
     else:
-        print(f"\t>>>> Input must be a valid integer <<<<")
+        console.print("\t>>>> Input must be a valid integer <<<<", style="dim bold magenta")
 
 def find_store_by_id():
     id_ = input("Enter the store id: ")
@@ -74,9 +75,9 @@ def find_store_by_id():
         if store:
             print(f"{store}")
         else:
-            print(f"\t>>>> Store with id {id_} not found <<<<")
+            console.print(f"\t>>>> No store with id {id_} was found <<<<", style="bold dim blue")
     else:
-        print(f"\t>>>> Input must be a valid integer <<<<")
+        console.print("\t>>>> Input must be a valid integer <<<<", style="dim bold magenta")
 
 def find_store_by_name():
     name = input("Enter the store name: ")
@@ -85,9 +86,9 @@ def find_store_by_name():
         if store:
             print(f"{store}")
         else:
-            print(f"\t>>>> Store with the name {name} not found <<<<")
+            console.print(f"\t>>>> Store with the name {name} not found <<<<", style="dim blue bold")
     else:
-        print(f"\t>>>> Input must be a string <<<<")
+        console.print(f"\t>>>> Input must be a string <<<<", style="bold dim magenta")
 
 def find_store_by_location():
     location = input("Enter the location: ")
@@ -97,9 +98,9 @@ def find_store_by_location():
             for store in stores:
                 print(f"{store}")
         else:
-            print(f"\t>>>> No stores found in {location} <<<<")
+            console.print(f"\t>>>> No stores found in {location} <<<<", style="bold dim blue")
     else:
-        print(f"\t>>>> Input must be a string <<<<")
+        console.print(f"\t>>>> Input must be a string <<<<", style="bold dim magenta")
 
 def view_all_stores():
     stores = Store.get_all()
@@ -118,9 +119,9 @@ def view_all_store_departments_id():
             for dept in dept_list:
                 print(dept)
         else:
-            print(f"\t>>>> No departments found in store with id {id_} <<<<")
+            console.print(f"\t>>>> No departments found in store with id {id_} <<<<", style="dim blue bold")
     else:
-        print(f"\t>>>> Input must be a valid integer <<<<")
+        console.print("\t>>>> Input must be a valid integer <<<<", style="dim bold magenta")
 
 def view_all_store_departments_name():
     name = input("Enter the store name: ")
@@ -134,9 +135,9 @@ def view_all_store_departments_name():
             for dept in dept_list:
                 print(dept)
         else:
-            print(f"No department with the name {name} was found")
+            console.print(f"\t>>>> No store with the name {name} was found <<<<", style="dim blue bold")
     else:
-        print(f"\t>>>> Input must be a string <<<<")
+        console.print(f"\t>>>> Input must be a string <<<<", style="bold dim magenta")
 
 ### DEPARTMENT OPERATIONS ###
 def new_department():
@@ -147,9 +148,9 @@ def new_department():
                 department = Department.create(name, description)
                 print(department)
         else:
-            print(f"\t>>>> Input must be a string <<<<")
+            console.print(f"\t>>>> Input must be a string <<<<", style="bold dim magenta")
     else:
-        print(f"\t>>>> Input must be a string <<<<")
+        console.print(f"\t>>>> Input must be a string <<<<", style="bold dim magenta")
 
         
 
@@ -163,13 +164,13 @@ def delete_department():
                 print(f"{department} has been removed")
                 department.delete()
             elif choice.lower() == "n":
-                print(f"Operation cancelled")
+                console.print("Operation cancelled", style="bold dim magenta")
             else:
-                print("\t>>>> Invalid choice <<<<")
+                console.print("\t>>>> Invalid choice <<<<", style="bold dim magenta")
         else:
-            print(f"\t>>>> No department with id {id_} was found <<<<")
+            console.print(f"\t>>>> No department with id {id_} was found <<<<", style="dim blue bold")
     else:
-        print(f"\t>>>> Input must be a valid integer <<<<")
+        console.print("\t>>>> Input must be a valid integer <<<<", style="dim bold magenta")
 
 def find_department_by_id():
     id_ = input("Enter the department id: ")
@@ -180,7 +181,7 @@ def find_department_by_id():
         else:
             print(f"\t>>>> Department with id {id_} not found <<<<")
     else:
-        print(f"\t>>>> Input must be a valid integer <<<<")
+        console.print("\t>>>> Input must be a valid integer <<<<", style="dim bold magenta")
 
 def find_department_by_name():
     name = input("Enter the department name: ")
@@ -190,9 +191,9 @@ def find_department_by_name():
             for department in departments:
                 print(f"{department}")
         else:
-            print(f"\t>>>> Department with the name {name} not found <<<<")
+            console.print(f"\t>>>> No department with id {id_} was found <<<<", style="dim blue bold")
     else:
-        print(f"\t>>>> Input must be a string <<<<")
+        console.print(f"\t>>>> Input must be a string <<<<", style="bold dim magenta")
 
 def view_all_departments():
     departments = Department.get_all()
@@ -214,15 +215,16 @@ def update_department():
                         department.update()
                         print(f"{department} has been updated")
                     else:
-                        print(f"\t>>>> Input must be a string <<<<")
+                        console.print(f"\t>>>> Input must be a string <<<<", style="bold dim magenta")
                 else:
-                    print(f"\t>>>> Input must be a string <<<<")
+                    console.print(f"\t>>>> Input must be a string <<<<", style="bold dim magenta")
             except Exception as exc:
                 print(f"\t>>>> Error: ", exc, "<<<<", "\n")
         else:
-            print(f"\t>>>> No department with id {id_} was found <<<<")
+            console.print(f"\t>>>> No department with id {id_} was found <<<<", style="dim blue bold")
+
     else:
-        print(f"\t>>>> Input must be a valid integer <<<<")
+        console.print("\t>>>> Input must be a valid integer <<<<", style="dim bold magenta")
 
 ### PRODUCT OPERATIONS ###
 def new_product():
@@ -242,15 +244,15 @@ def new_product():
                         except Exception as exc:
                             print(f"\t>>>> Error: ", exc, "<<<<", "\n")
                     else:
-                        print(f"\t>>>> Input must be a valid integer <<<<")
+                        console.print("\t>>>> Input must be a valid integer <<<<", style="dim bold magenta")
                 else:
-                    print(f"\t>>>> Input must be a valid integer <<<<")
+                    console.print("\t>>>> Input must be a valid integer <<<<", style="dim bold magenta")
             else:
-                print(f"\t>>>> Input must be a valid integer <<<<")
+                console.print("\t>>>> Input must be a valid integer <<<<", style="dim bold magenta")
         else:
-            print(f"\t>>>> Input must be a string <<<<")
+            console.print(f"\t>>>> Input must be a string <<<<", style="bold dim magenta")
     else:
-        print(f"\t>>>> Input must be a string <<<<")
+        console.print(f"\t>>>> Input must be a string <<<<", style="bold dim magenta")
 
 
 def delete_product():
@@ -265,11 +267,11 @@ def delete_product():
             elif choice.lower() == "n":
                 print(f"\nOperation cancelled")
             else:
-                print("\t>>>> Invalid choice <<<<")
+                console.print("\t>>>> Invalid choice <<<<", style="bold dim magenta")
         else:
             print(f"\t>>>> No product with id {id_} was found <<<<")
     else:
-        print(f"\t>>>> Input must be a valid integer <<<<")
+        console.print("\t>>>> Input must be a valid integer <<<<", style="dim bold magenta")
 
 def update_product():
     id_ = input("Enter the product id: ")
@@ -294,7 +296,7 @@ def update_product():
         else:
             print(f"\t>>>> No product with id {id_} was found <<<<")
     else:
-        print(f"\t>>>> Input must be a valid integer <<<<")
+        console.print("\t>>>> Input must be a valid integer <<<<", style="dim bold magenta")
 
 def find_product_by_id():
     id_ = input("Enter the product id: ")
@@ -305,7 +307,7 @@ def find_product_by_id():
         else:
             print(f"\t>>>> Product with id {id_} not found <<<<")
     else:
-        print(f"\t>>>> Input must be a valid integer <<<<")
+        console.print("\t>>>> Input must be a valid integer <<<<", style="dim bold magenta")
 
 def find_product_by_name():
     name = input("Enter the product name: ")
@@ -317,7 +319,7 @@ def find_product_by_name():
         else:
             print(f"\t>>>> Product with the name {name} not found <<<<")
     else:
-        print(f"\t>>>> Input cannot be blank <<<<")
+        console.print("\t>>>> Input cannot be blank <<<<", style="bold magenta dim")
 
 def view_all_products():
     products = Product.get_all()
@@ -343,7 +345,7 @@ def view_all_products_in_department_id():
         else:
             print(f"\t>>>> No products were found in department with id {id_} <<<<")
     else:
-        print(f"\t>>>> Input must be a valid integer <<<<")
+        console.print("\t>>>> Input must be a valid integer <<<<", style="dim bold magenta")
 
 def view_all_products_in_department_name():
     name = input("Enter the department name: ")
@@ -364,7 +366,7 @@ def view_all_products_in_department_name():
         else:
             print(f"\t>>>> Department with the name {name} not found <<<<")
     else:
-        print(f"\t>>>> Input must be a string <<<<")
+        console.print(f"\t>>>> Input must be a string <<<<", style="bold dim magenta")
 
 
 def products_in_store_id():
@@ -382,7 +384,7 @@ def products_in_store_id():
         else:
             print(f"\t>>>> Store with id {id_} does not exist <<<<")
     else:
-        print(f"\t>>>> Input must be a valid integer <<<<")
+        console.print("\t>>>> Input must be a valid integer <<<<", style="dim bold magenta")
 
 def products_in_store_name():
     name = input("Enter Store Name: ").title()
@@ -399,7 +401,7 @@ def products_in_store_name():
         else:
             print(f"\t>>>> Store with name {name} does not exist <<<<")
     else:
-        print(f"\t>>>> Input must be a string <<<<")
+        console.print(f"\t>>>> Input must be a string <<<<", style="bold dim magenta")
 
 def show_almost_out():
     console = Console()
@@ -467,54 +469,54 @@ def update_quantity():
                 else:
                     print(f"\t>>>> Store with name {store_name} does not exist <<<<")
             else:
-                print(f"\t>>>> Input must be a string <<<<")
+                console.print(f"\t>>>> Input must be a string <<<<", style="bold dim magenta")
         else:
             print(f"\t>>>> Product with name {product_name} does not exist <<<<")
     else:
-        print(f"\t>>>> Input must be a string <<<<")
+        console.print(f"\t>>>> Input must be a string <<<<", style="bold dim magenta")
 
 ### QUIT ###
 def quit():
     for i in track(range(2), description = "Shutting down..."):
-        time.sleep(1)
-    print(figlet_format("Store Manager", font="small"))
-    print(figlet_format("made by levite", font = "mini", width=900))
+        time.sleep(0.5)
+    print(figlet_format("Retail Maven", font="small", justify="center"))
+    print(figlet_format("levi", font = "italic", width=1900))
     exit()
 
 
 ### ADMIN PANEL ###
 def store_delete_table():
     console = Console()
-    ans = input("Are you sure you want to delete the store table? (y/n): ")
     console.print("Warning: This action cannot be undone!", style="yellow on red")
+    ans = input("Are you sure you want to delete the store table? (y/n): ")
     if ans.lower() == "y":
         Store.drop_table()
         print("\nStore table has been deleted\n")
     elif ans.lower() == "n":
-        print("\nOperation Cancelled\n")
+        console.print("Operation cancelled", style="bold dim magenta")
     else:
-        print("\nInvalid input\n")
+         console.print("Invalid Input!", style="bold dim magenta")
 def store_create_table():
     ans = input("Are you sure you want to create the store table? (y/n): ")
     if ans.lower() == "y":
         Store.create_table()
         print("\nStore table has been created\n")
     elif ans.lower() == "n":
-        print("\nOperation Cancelled\n")
+        console.print("Operation cancelled", style="bold dim magenta")
     else:
-        print("\nInvalid input\n")
+         console.print("Invalid Input!", style="bold dim magenta")
         
 def department_delete_table():
     console = Console()
-    ans = input("Are you sure you want to delete the department table? (y/n): ")
     console.print("Warning: This action cannot be undone!", style="yellow on red")
+    ans = input("Are you sure you want to delete the department table? (y/n): ")
     if ans.lower() == "y":
         Department.drop_table()
         print("\nDepartment table has been deleted\n")
     elif ans.lower() == "n":
-        print("\nOperation Cancelled\n")
+        console.print("Operation cancelled", style="bold dim magenta")
     else:
-        print("\nInvalid input\n")
+        console.print("Invalid Input!", style="bold dim magenta")
 
 def department_create_table():
     ans = input("Are you sure you want to create the department table? (y/n): ")
@@ -522,21 +524,21 @@ def department_create_table():
         Department.create_table()
         print("\nDepartment table has been created\n")
     elif ans.lower() == "n":
-        print("\nOperation Cancelled\n")
+        console.print("Operation cancelled", style="bold dim magenta")
     else:
-        print("\nInvalid input\n")
+         console.print("Invalid Input!", style="bold dim magenta")
 
 def product_delete_table():
     console = Console()
-    ans = input("Are you sure you want to delete the product table? (y/n): ")
     console.print("Warning: This action cannot be undone!", style="yellow on red")
+    ans = input("Are you sure you want to delete the product table? (y/n): ")
     if ans.lower() == "y":
         Product.drop_table()
         print("\nProduct table has been deleted\n")
     elif ans.lower() == "n":
-        print("\nOperation Cancelled\n")
+        console.print("Operation cancelled", style="bold dim magenta")
     else:
-        print("\nInvalid input\n")
+         console.print("Invalid Input!", style="bold dim magenta")
         
 
 def product_create_table():
@@ -545,8 +547,8 @@ def product_create_table():
         Product.create_table()
         print("\nProduct table has been created\n")
     elif ans.lower() == "n":
-        print("\nOperation Cancelled\n")
+        console.print("Operation cancelled", style="bold dim magenta")
     else:
-        print("\nInvalid input\n")
+         console.print("Invalid Input!", style="bold dim magenta")
         
 
