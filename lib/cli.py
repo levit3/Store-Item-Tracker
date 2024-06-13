@@ -1,5 +1,10 @@
 #!usr/bin/env python
+from rich import print
 import time
+from rich.progress import track
+from pyfiglet import figlet_format
+from rich.console import Console
+from rich.prompt import Prompt
 from helpers import (
     add_new_store,
     remove_store,
@@ -28,21 +33,24 @@ from helpers import (
     products_in_store_name,
     show_almost_out,
     update_quantity,
+    store_create_table,
+    store_delete_table,
+    department_create_table,
+    department_delete_table,
+    product_create_table,
+    product_delete_table,
     quit
 )
 
 def main():
-    # for frame in '|/-\\|/-\\|/-\\|':
-    #     print(f'\r{frame}', end='', flush=True)
-    #     time.sleep(0.2)
-    st = "*" * (len("Welcome to the store manager!") + 6)
-    print(f"\n\t{st}")
-    print(f"\t **Welcome to the store manager!**")
-    print(f"\t{st}")
+    for i in track(range(3), description = "Booting up..."):
+        time.sleep(1)
+    print(figlet_format("Welcome to the ", font="small", justify="center"), end = "")
+    print(figlet_format("Store Manager ", font="standard",  justify="center"))
+    show_almost_out()
     while True:
-        show_almost_out()
         choices()
-        choice = input(f"\n>>> ").lower()
+        choice = Prompt.ask(f"\n>>>").lower()
         if choice == "1" or choice == "Add a new store".lower():
             add_new_store()
         elif choice == "2":
@@ -97,12 +105,19 @@ def main():
             update_quantity()
         elif choice == "q".lower() or choice == "quit".lower():
             quit()
+        elif choice.lower() == "admin":
+            pass_ = input("Enter admin password: ")
+            if pass_ == "admin":
+                admin_panel()
+            else:
+                print("Invalid password")
         else:
             print("Invalid choice")
         
         
 def choices():
-    print("Store Operations:")
+    console = Console()
+    console.print("\nStore Operations:", style = "bold blue on white")
     print(f"\t1. Add new store")
     print(f"\t2. Remove store")
     print(f"\t3. Update store details")
@@ -112,14 +127,14 @@ def choices():
     print(f"\t7. View all stores")
     print(f"\t8. View all departments in a store (by ID)")
     print(f"\t9. View all departments in a store (by Name)")
-    print("\nDepartment Operations:")
+    console.print("\nDepartment Operations:", style = "bold blue on white")
     print(f"\t10. Add new department")
     print(f"\t11. Remove department")
     print(f"\t12. Update department details")
     print(f"\t13. Find department by id")
     print(f"\t14. Find department(s) by name")
     print(f"\t15. View all departments")
-    print("\n Product Operations:")
+    console.print("\nProduct Operations:", style = "bold blue on white")
     print(f"\t16. Add new product")
     print(f"\t17. Remove product")
     print(f"\t18. Update product details")
@@ -133,5 +148,44 @@ def choices():
     print(f"\t26. Update product quantity")
     print(f"\nEnter 'q' or 'quit' to Quit")
     
+    
+def admin_panel():
+    flag = True
+    while flag:
+        admin_choices()
+        choice = input(">>  ")
+        if choice.lower() == "1":
+            store_delete_table()
+        elif choice.lower() == "2":
+            store_create_table()
+        elif choice.lower() == "3":
+            department_delete_table()
+        elif choice.lower() == "4":
+            department_create_table()
+        elif choice.lower() == "5":
+            product_delete_table()
+        elif choice.lower() == "6":
+            product_create_table()
+        elif choice.lower() == "q" or choice.lower() == "quit":
+            flag = False
+            main()
+        else:
+            print("Invalid input")
+            
+            
+def admin_choices():
+    console = Console()
+    console.print("\n!!!!Admin panel!!!!!", style = "bold underline red")
+    console.print("Store Operations", style = "bold blue on white")
+    print("\t1. Delete Store Table")
+    print("\t2. Add Store Table")
+    print("Department Operations", style = "bold blue on white")
+    print("\t3. Delete Department Table")
+    print("\t4. Add Department Table")
+    print("Product Operations", style = "bold blue on white")
+    print("\t5. Delete Product Table")
+    print("\t6. Add Product Table")
+    print(f"\nEnter 'q' or 'quit' to go back")
+
 if __name__ == "__main__":
     main()

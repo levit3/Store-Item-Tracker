@@ -1,6 +1,11 @@
 from models.store import Store
 from models.department import Department
 from models.product import Product
+import time
+from pyfiglet import figlet_format
+from rich import print
+from rich.console import Console
+from rich.progress import track
 
 ### STORE OPERATIONS ###
 def add_new_store():
@@ -42,13 +47,19 @@ def update_store():
         store = Store.find_by_id(int(id_))
         if store:
             try:
-                old_store = store
                 name = input("Enter the new store name: ")
-                store.name = name
-                location = input("Enter the new store location: ")
-                store.location = location
-                store.update()
-                print(f"{old_store} has been updated to {store}")
+                if not name.isdigit():
+                    store.name = name
+                    location = input("Enter the new store location: ")
+                    if not location.isdigit():
+                        store.location = location
+                        store.update()
+                        print(f"{store} has been updated")
+                    else:
+                        print(f"\t>>>> Input must be a string <<<<")
+                else:
+                    print(f"\t>>>> Input must be a string <<<<")
+                
             except Exception as exc:
                 print(f"\t>>>> Error: ", exc, "<<<<", "\n")
         else:
@@ -98,10 +109,14 @@ def view_all_stores():
 def view_all_store_departments_id():
     id_ = input("Enter the store id: ")
     if id_.isdigit() and int(id_) > 0:
-        departments = Department.find_by_store_id(int(id_))
-        if departments and int(id_) > 0:
+        departments = Department.get_all_in_store_id(int(id_))
+        dept_list = []
+        if departments:
             for department in departments:
-                print(department)
+                if department not in dept_list:
+                    dept_list.append(department)
+            for dept in dept_list:
+                print(dept)
         else:
             print(f"\t>>>> No departments found in store with id {id_} <<<<")
     else:
@@ -110,10 +125,14 @@ def view_all_store_departments_id():
 def view_all_store_departments_name():
     name = input("Enter the store name: ")
     if name and not name.isdigit():
-        departments = Department.find_by_store_name(name.title())
+        departments = Department.get_all_in_store_name(name.title())
+        dept_list = []
         if departments:
             for department in departments:
-                print(department)
+                if department not in dept_list:
+                    dept_list.append(department)
+            for dept in dept_list:
+                print(dept)
         else:
             print(f"No department with the name {name} was found")
     else:
@@ -125,12 +144,8 @@ def new_department():
     if name and not name.isdigit():
         description = input("Enter the description: ")
         if description and not description.isdigit():
-            store_id = input("Enter the store id: ")
-            if store_id.isdigit():
-                department = Department.create(name, description, int(store_id))
+                department = Department.create(name, description)
                 print(department)
-            else:
-                print(f"\t>>>> Input must be a valid integer <<<<")
         else:
             print(f"\t>>>> Input must be a string <<<<")
     else:
@@ -191,12 +206,17 @@ def update_department():
         if department:
             try:
                 name = input("Enter the new department name: ")
-                department.name = name
-                description = input("Enter the new department description: ")
-                department.description = description
-                store_id = input("Enter the new store id: ")
-                department.store_id = int(store_id) if store_id.isdigit() else department.store_id
-                department.update()
+                if name and not name.isdigit():
+                    department.name = name
+                    description = input("Enter the new department description: ")
+                    if not description.isdigit():
+                        department.description = description if description else department.description
+                        department.update()
+                        print(f"{department} has been updated")
+                    else:
+                        print(f"\t>>>> Input must be a string <<<<")
+                else:
+                    print(f"\t>>>> Input must be a string <<<<")
             except Exception as exc:
                 print(f"\t>>>> Error: ", exc, "<<<<", "\n")
         else:
@@ -214,11 +234,15 @@ def new_product():
             if quantity.isdigit():
                 department_id = input("Enter the department id: ")
                 if department_id.isdigit():
-                    try:
-                        product = Product.create(name, description, int(quantity), int(department_id))
-                        print(product)
-                    except Exception as exc:
-                        print(f"\t>>>> Error: ", exc, "<<<<", "\n")
+                    store_id = input("Enter the store id: ")
+                    if store_id.isdigit():
+                        try:
+                            product = Product.create(name, description, int(quantity), int(department_id), int(store_id))
+                            print(f"{product} has been successfully added")
+                        except Exception as exc:
+                            print(f"\t>>>> Error: ", exc, "<<<<", "\n")
+                    else:
+                        print(f"\t>>>> Input must be a valid integer <<<<")
                 else:
                     print(f"\t>>>> Input must be a valid integer <<<<")
             else:
@@ -261,6 +285,8 @@ def update_product():
                 product.quantity = int(quantity) if quantity.isdigit() else product.quantity
                 department_id = input("Enter the new department id: ")
                 product.department_id = int(department_id) if department_id.isdigit() else product.department_id
+                store_id = input("Enter the new store id: ")
+                product.store_id = int(store_id) if store_id.isdigit() else product.store_id
                 product.update()
                 print(f"{product} has been updated")
             except Exception as exc:
@@ -303,8 +329,17 @@ def view_all_products_in_department_id():
     if id_.isdigit() and int(id_) > 0:
         products = Product.get_all_in_department_id(int(id_))
         if products:
+            products_by_store = {}
             for product in products:
-                print(product)
+                store = Store.find_by_id(product.store_id)
+                if store.name not in products_by_store:
+                    products_by_store[store.name] = []
+                products_by_store[store.name].append(product)
+            
+            for store_name, products in products_by_store.items():
+                print(f"\n{store_name}")
+                for product in products:
+                    print(product)
         else:
             print(f"\t>>>> No products were found in department with id {id_} <<<<")
     else:
@@ -317,8 +352,7 @@ def view_all_products_in_department_name():
         if products:
             products_by_store = {}
             for product in products:
-                department = Department.find_by_id(product.id)
-                store = Store.find_by_id(department.store_id)
+                store = Store.find_by_id(product.store_id)
                 if store.name not in products_by_store:
                     products_by_store[store.name] = []
                 products_by_store[store.name].append(product)
@@ -336,13 +370,13 @@ def view_all_products_in_department_name():
 def products_in_store_id():
     id_ = input("Enter Store ID: ")
     if id_.isdigit() and int(id_) > 0:
-        departments = Department.find_by_store_id(int(id_))
+        departments = Department.get_all_in_store_id(int(id_))
         if departments:
             store = Store.find_by_id(int(id_))
             print(f"\n{store.name}")
             for department in departments:
                 print(f"\n{department.name}")
-                products = Product.get_all_in_department_id(department.id)
+                products = Product.get_all_in_department_store_id(department.id, store.id)
                 for product in products:
                     print(product)
         else:
@@ -353,13 +387,13 @@ def products_in_store_id():
 def products_in_store_name():
     name = input("Enter Store Name: ").title()
     if name and not name.isdigit():
-        departments = Department.find_by_store_name(name)
+        departments = Department.get_all_in_store_name(name)
         if departments:
             store = Store.find_by_name(name)
             print(f"\n{store.name}")
             for department in departments:
-                print(f"{department.name}")
-                products = Product.get_all_in_department_name(department.name)
+                print(f"\n{department.name}")
+                products = Product.get_all_in_department_store_id(department.id, store.id)
                 for product in products:
                     print(product) if product else print("None")
         else:
@@ -368,65 +402,68 @@ def products_in_store_name():
         print(f"\t>>>> Input must be a string <<<<")
 
 def show_almost_out():
+    console = Console()
     products = Product.get_all()
+    ending_products = {}
     for product in products:
-        if 0 < product.quantity <= 10:
-            department = Department.find_by_id(product.department_id)
-            store = Store.find_by_id(department.store_id)
-            print("\n-------------------------Stock Updates-----------------------")
-            print(f"{store.name}")
-            print(f"***{product.name} is almost out of stock. Only {product.quantity} remaining!***")
-            print("------------------------------------------------------------\n")
-        elif product.quantity == 0:
-            department = Department.find_by_id(product.department_id)
-            store = Store.find_by_id(department.store_id)
-            print(f"{store.name}")
-            print(f"***{product.name} is out of stock!!***")
+        if product.quantity <= 15:
+            store = Store.find_by_id(product.store_id)
+            ending_products[product.name] = [store.name, product.name, product.quantity]
             
+    console.print("\n[bold red]-------------------------Stock Updates-----------------------[/bold red]")
+    for name, data in ending_products.items():
+            if data[2] > 0:
+                print(data[0])
+                print(f"***{data[1]} is almost out of stock. Only[bold red] {data[2]}[/bold red] remaining!***\n")
+            else:
+                print(data[0])
+                print(f"***{data[1]} is out of stock!!***\n")
+    print("[bold red]------------------------------------------------------------[/bold red]\n")
             
 def update_quantity():
     product_name = input("Enter the product name: ")
     if not product_name.isdigit():
-        products = Product.find_by_name(product_name)
+        products = Product.find_by_name(product_name.title())
         if products:
             store_name = input("Enter the name of the store you would like to update stock: ")
             if not store_name.isdigit():
-                store = Store.find_by_name(store_name)
+                store = Store.find_by_name(store_name.title())
                 if store:
                     for product in products:
-                            department = Department.find_by_id(product.department_id)
-                            store = Store.find_by_id(department.store_id)
-                            if store.name == store_name:
-                                print(f"Current stock for {product.name} is {product.quantity}\n")
+                        if store.id == product.store_id:
+                            print(f"Current stock for {product.name} is {product.quantity}\n")
+                            if product.quantity > 0:
+                                question = input("Enter 'u' to to update quantity for the day or 's' to stock up: ")
+                            else:
+                                question = input("Enter 's' to stock up: ") 
+                            if question.lower() == "u":
                                 if product.quantity > 0:
-                                    question = input("Enter 'u' to to update quantity for the day or 's' to stock up: ")
-                                else:
-                                    question = input("Enter 's' to stock up: ") 
-                                if question.lower() == "u" and product.quantity > 0:
-                                    if product.quantity > 0:
-                                        quantity = input("Enter the number items sold today: ")
-                                        if quantity.isdigit() and int(quantity) > 0:
-                                            prev = product.quantity
+                                    quantity = input("Enter the number items sold today: ")
+                                    if quantity.isdigit() and int(quantity) > 0:
+                                        prev = product.quantity
+                                        if product.quantity > int(quantity):
                                             product.quantity -= int(quantity)
                                             product.update()
                                             print(f"{product.name} stock has been updated from {prev} to {product.quantity}\n")
                                         else:
-                                            print(f"\n{quantity} must be a valid integer\n")
-                                    else:
-                                        print(f"\n{product.name} is out of stock\n")
-                                elif question.lower() == "s":
-                                    quantity = input("Enter the number of items to stock up: ")
-                                    if quantity.isdigit() and int(quantity) > 0:
-                                        prev = product.quantity
-                                        product.quantity += int(quantity)
-                                        product.update()
-                                        print(f"\n{product.name} stock has been updated from {prev} to {product.quantity}\n")
+                                            print(f"The quantity you have entered ({quantity}) is more then the stock ({product.quantity})")
                                     else:
                                         print(f"\n{quantity} must be a valid integer\n")
                                 else:
-                                    print(f"\t>>>> Invalid input <<<<")
+                                    print(f"\n{product.name} is out of stock\n")
+                            elif question.lower() == "s":
+                                quantity = input("Enter the number of items to stock up: ")
+                                if quantity.isdigit() and int(quantity) > 0:
+                                    prev = product.quantity
+                                    product.quantity += int(quantity)
+                                    product.update()
+                                    print(f"\n{product.name} stock has been updated from {prev} to {product.quantity}\n")
+                                else:
+                                    print(f"\n{quantity} must be a valid integer\n")
                             else:
-                                print(f"\t>>>> Product {product.name} does not exist in the stock of {store.name} <<<<")
+                                print(f"\t>>>> Invalid input <<<<")
+                        else:
+                            print(f"\t>>>> Product {product.name} does not exist in the stock of {store.name} <<<<")
                 else:
                     print(f"\t>>>> Store with name {store_name} does not exist <<<<")
             else:
@@ -438,8 +475,78 @@ def update_quantity():
 
 ### QUIT ###
 def quit():
-    st = "*" * (len("Store manager") + 6)
-    print(f"\t      {st}")
-    print(f"\t       **Store manager**")
-    print(f"\t      {st}")
+    for i in track(range(2), description = "Shutting down..."):
+        time.sleep(1)
+    print(figlet_format("Store Manager", font="small"))
+    print(figlet_format("made by levite", font = "mini", width=900))
     exit()
+
+
+### ADMIN PANEL ###
+def store_delete_table():
+    console = Console()
+    ans = input("Are you sure you want to delete the store table? (y/n): ")
+    console.print("Warning: This action cannot be undone!", style="yellow on red")
+    if ans.lower() == "y":
+        Store.drop_table()
+        print("\nStore table has been deleted\n")
+    elif ans.lower() == "n":
+        print("\nOperation Cancelled\n")
+    else:
+        print("\nInvalid input\n")
+def store_create_table():
+    ans = input("Are you sure you want to create the store table? (y/n): ")
+    if ans.lower() == "y":
+        Store.create_table()
+        print("\nStore table has been created\n")
+    elif ans.lower() == "n":
+        print("\nOperation Cancelled\n")
+    else:
+        print("\nInvalid input\n")
+        
+def department_delete_table():
+    console = Console()
+    ans = input("Are you sure you want to delete the department table? (y/n): ")
+    console.print("Warning: This action cannot be undone!", style="yellow on red")
+    if ans.lower() == "y":
+        Department.drop_table()
+        print("\nDepartment table has been deleted\n")
+    elif ans.lower() == "n":
+        print("\nOperation Cancelled\n")
+    else:
+        print("\nInvalid input\n")
+
+def department_create_table():
+    ans = input("Are you sure you want to create the department table? (y/n): ")
+    if ans.lower() == "y":
+        Department.create_table()
+        print("\nDepartment table has been created\n")
+    elif ans.lower() == "n":
+        print("\nOperation Cancelled\n")
+    else:
+        print("\nInvalid input\n")
+
+def product_delete_table():
+    console = Console()
+    ans = input("Are you sure you want to delete the product table? (y/n): ")
+    console.print("Warning: This action cannot be undone!", style="yellow on red")
+    if ans.lower() == "y":
+        Product.drop_table()
+        print("\nProduct table has been deleted\n")
+    elif ans.lower() == "n":
+        print("\nOperation Cancelled\n")
+    else:
+        print("\nInvalid input\n")
+        
+
+def product_create_table():
+    ans = input("Are you sure you want to create the product table? (y/n): ")
+    if ans.lower() == "y":
+        Product.create_table()
+        print("\nProduct table has been created\n")
+    elif ans.lower() == "n":
+        print("\nOperation Cancelled\n")
+    else:
+        print("\nInvalid input\n")
+        
+

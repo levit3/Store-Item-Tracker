@@ -3,13 +3,14 @@ from .store import Store
 
 class Department:
     all = {}
-    def __init__(self, name, description, store_id, id = None):
+    DEPARTMENTS = ("Produce", "Meat", "Dairy", "Bakery", "Household", "Clothing", "Electronics", "Toys", "Books", "Laptops", "Smartphones", "Gaming", "Accessories", "Furniture", "Outdoor", "Beauty")
+
+    def __init__(self, name, description, id = None):
         self.name = name
         self.description =description
-        self.store_id = store_id
         
     def __repr__(self):
-        return f"<ID: {self.id}, Name: {self.name}, Description: {self.description}, Store ID: {self.store_id}>"
+        return f"<ID: {self.id}, Name: {self.name}, Description: {self.description}>"
         
     @property
     def name(self):
@@ -17,7 +18,9 @@ class Department:
     
     @name.setter
     def name(self, value):
-        if not isinstance(value, str):
+        if value not in Department.DEPARTMENTS:
+            raise Exception('Department must be one of the following: Produce, Meat, Dairy, Bakery, Household, Clothing, Electronics, Toys, Books, Laptops, Smartphones, Gaming, Accessories, Furniture, Outdoor, Beauty')
+        elif not isinstance(value, str):
             raise TypeError('Name must be a string')
         elif not 2 <= len(value) <= 15:
             raise Exception("Name must be between 2 and 15 characters")
@@ -34,24 +37,6 @@ class Department:
         elif not value:
             raise Exception("The description must not be empty")
         self._description = value
-        
-    @property
-    def store_id(self):
-        return self._store_id
-    
-    @store_id.setter
-    def store_id(self, value):
-        sql = """
-            SELECT id
-            FROM stores
-            WHERE id = ?
-        """
-        id_ = cursor.execute(sql, (value,)).fetchone()
-        
-        if not id_:
-            raise ValueError("The store id must be in the stores table")
-        else:
-            self._store_id = value
 
     @classmethod
     def create_table(cls):
@@ -59,9 +44,7 @@ class Department:
             CREATE TABLE IF NOT EXISTS departments (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 name TEXT,
-                description TEXT, 
-                store_id,
-                FOREIGN KEY (store_id) REFERENCES stores(id)
+                description TEXT
             )
         """
         cursor.execute(sql)
@@ -77,10 +60,10 @@ class Department:
         
     def save(self):
         sql = """
-            INSERT INTO departments(name, description, store_id)
-            VALUES (?, ?, ?)
+            INSERT INTO departments(name, description)
+            VALUES (?, ?)
         """
-        cursor.execute(sql, (self.name, self.description, self.store_id))
+        cursor.execute(sql, (self.name, self.description))
         conn.commit()
         self.id = cursor.lastrowid
         type(self).all[self.id] = self
@@ -97,17 +80,17 @@ class Department:
         self.id = None
         
     def update(self):
-        sql = """"
+        sql = """
             UPDATE departments
-            SET name =?, description =?, store_id =?,
+            SET name =?, description =?
             WHERE id =?
         """
-        cursor.execute(sql, (self.name, self.description, self.store_id, self.id))
+        cursor.execute(sql, (self.name, self.description, self.id))
         conn.commit()
         
     @classmethod    
-    def create(cls, name, description, store_id):
-        department = cls(name, description, store_id)
+    def create(cls, name, description):
+        department = cls(name, description)
         department.save()
         return department
     
@@ -117,9 +100,8 @@ class Department:
         if department:
             department.name = row[1]
             department.description = row[2]
-            department.store_id = row[3]
         else:
-            department = cls(row[1], row[2], row[3])
+            department = cls(row[1], row[2])
             department.id = row[0]
             cls.all[department.id] = department
         
@@ -153,25 +135,29 @@ class Department:
         """
         departments = cursor.execute(sql).fetchall()
         return [cls.instance_from_db(department) for department in departments]
-        
+    
     @classmethod
-    def find_by_store_id(cls, store_id):
+    def get_all_in_store_id(cls, store_id):
         sql = """
-            SELECT *
+            SELECT DISTINCT departments.id, departments.name, departments.description
             FROM departments
-            WHERE store_id = ?
-            """
+            INNER JOIN products 
+            ON departments.id = products.department_id
+            WHERE products.store_id = ?
+        """
         departments = cursor.execute(sql, (store_id,)).fetchall()
         return [cls.instance_from_db(department) for department in departments] if departments else None
-
+    
     @classmethod
-    def find_by_store_name(cls, name):
+    def get_all_in_store_name(cls, name):
         sql = """
-            SELECT *
+            SELECT DISTINCT departments.id, departments.name, departments.description
             FROM departments
+            INNER JOIN products
+            ON departments.id = products.department_id
             INNER JOIN stores
-            ON departments.store_id = stores.id
-            WHERE stores.name = ?
+            ON products.store_id = stores.id
+            WHERE stores.name =?
         """
         departments = cursor.execute(sql, (name,)).fetchall()
         return [cls.instance_from_db(department) for department in departments] if departments else None

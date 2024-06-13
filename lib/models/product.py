@@ -3,15 +3,15 @@ from .__init__ import conn, cursor
 class Product:
     all = {}
     
-    def __init__(self, name, product_type, quantity, department_id, id = None):
+    def __init__(self, name, product_type, quantity, department_id, store_id, id = None):
         self.name = name
         self.product_type = product_type
         self.department_id = department_id
         self.quantity = quantity
-        # self.store_id = store_id
+        self.store_id = store_id
         
     def __repr__(self):
-        return f"<ID: {self.id}, Name: {self.name}, Product Type: {self.product_type}, Quantity: {self.quantity}, Department ID: {self.department_id}>"
+        return f"<ID: {self.id}, Name: {self.name}, Product Type: {self.product_type}, Quantity: {self.quantity}, Department ID: {self.department_id}, Store ID: {self.store_id}>"
         
     @property
     def name(self):
@@ -70,23 +70,23 @@ class Product:
         else:
             self._department_id = value
             
-    # @property
-    # def store_id(self):
-    #     return self._store_id
+    @property
+    def store_id(self):
+        return self._store_id
     
-    # @store_id.setter
-    # def store_id(self, value):
-    #     sql = """
-    #         SELECT id
-    #         FROM stores
-    #         WHERE id = ?
-    #     """
-    #     id_ = cursor.execute(sql, (value, )).fetchone()
+    @store_id.setter
+    def store_id(self, value):
+        sql = """
+            SELECT id
+            FROM stores
+            WHERE id = ?
+        """
+        id_ = cursor.execute(sql, (value, )).fetchone()
         
-    #     if not id_:
-    #         raise Exception("The store id must be in the stores table")
-    #     else:
-    #         self._store_id = value
+        if not id_:
+            raise Exception("The store id must be in the stores table")
+        else:
+            self._store_id = value
         
     @classmethod
     def create_table(cls):
@@ -97,7 +97,9 @@ class Product:
                 product_type TEXT,
                 quantity INTEGER,
                 department_id,
-                FOREIGN KEY (department_id) REFERENCES departments(id)
+                store_id,
+                FOREIGN KEY (department_id) REFERENCES departments(id),
+                FOREIGN KEY (store_id) REFERENCES stores(id)
             )
         """
         cursor.execute(sql)
@@ -113,26 +115,37 @@ class Product:
         
     def save(self):
         sql = """
-            INSERT INTO products(name, product_type, quantity, department_id)
-            VALUES (?, ?, ?, ?)
+            INSERT INTO products(name, product_type, quantity, department_id, store_id)
+            VALUES (?, ?, ?, ?, ?)
         """
-        cursor.execute(sql, (self.name, self.product_type, self.quantity, self.department_id))
+        cursor.execute(sql, (self.name, self.product_type, self.quantity, self.department_id, self.store_id))
         conn.commit()
         self.id = cursor.lastrowid
         type(self).all[self.id] = self
+    
+    def delete(self):
+        sql = """
+            DELETE FROM products
+            WHERE id =?
+        """
+        cursor.execute(sql, (self.id,))
+        conn.commit()
+        
+        del type(self).all[self.id]
+        self.id = None
         
     def update(self):
         sql = """
             UPDATE products
-            SET name =?, product_type =?, quantity = ?, department_id =?
+            SET name =?, product_type =?, quantity = ?, department_id =?, store_id =?
             WHERE id =?
         """
-        cursor.execute(sql, (self.name, self.product_type, self.quantity, self.department_id, self.id))
+        cursor.execute(sql, (self.name, self.product_type, self.quantity, self.department_id, self.store_id, self.id))
         conn.commit()
         
     @classmethod
-    def create(cls, name, product_type, quantity, department_id):
-        product = cls(name, product_type, quantity, department_id)
+    def create(cls, name, product_type, quantity, department_id, store_id):
+        product = cls(name, product_type, quantity, department_id, store_id)
         product.save()
         return product
     
@@ -144,8 +157,9 @@ class Product:
             product.product_type = row[2]
             product.quantity = row[3]
             product.department_id = row[4]
+            product.store_id = row[5]
         else:
-            product = cls(row[1], row[2], row[3], row[4])
+            product = cls(row[1], row[2], row[3], row[4], row[5])
             product.id = row[0]
             cls.all[product.id] = product
         return product
@@ -190,11 +204,35 @@ class Product:
         return [cls.instance_from_db(product) for product in products] if products else []
         
     @classmethod
+    def get_all_in_store_id(cls, store_id):
+        sql = """
+            SELECT *
+            FROM products
+            WHERE store_id = ?
+            """
+        stores = cursor.execute(sql, (store_id,)).fetchall()
+        return [cls.instance_from_db(store) for store in stores] if stores else None
+    
+    @classmethod
+    def get_all_in_store_name(cls, name):
+        sql = """
+            SELECT *
+            FROM products
+            INNER JOIN stores
+            ON products.store_id = stores.id
+            WHERE stores.name = ?
+        """
+        products = cursor.execute(sql, (name,)).fetchall()
+        return [cls.instance_from_db(product) for product in products] if products else None
+     
+    @classmethod
     def get_all_in_department_id(cls, department_id):
         sql = """
             SELECT *
             FROM products
-            WHERE department_id = ?
+            INNER JOIN departments
+            ON products.department_id = departments.id
+            WHERE departments.id = ?
         """
         products = cursor.execute(sql, (department_id,)).fetchall()
         return [cls.instance_from_db(product) for product in products] if products else []
@@ -210,4 +248,23 @@ class Product:
         """
         products = cursor.execute(sql, (name, )).fetchall()
         return [cls.instance_from_db(product) for product in products] if products else []
-        
+    
+    @classmethod
+    def get_all_in_department_store_id(cls,department_id, store_id):
+        sql = """
+            SELECT *
+            FROM products
+            WHERE department_id = ? AND store_id = ? 
+        """
+        products = cursor.execute(sql, (department_id, store_id)).fetchall()
+        return [cls.instance_from_db(product) for product in products] if products else []
+    
+    def stock_update(self):
+        sql = """
+            UPDATE products
+            SET quantity = ?
+            WHERE id = ?
+        """
+        cursor.execute(sql, (self.quantity, self.id))
+        conn.commit()
+            
